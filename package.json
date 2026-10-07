@@ -1,0 +1,11 @@
+{
+  "name": "pruebas-ui-productos",
+  "private": true,
+  "scripts": {
+    "test:cypress": "cypress run --spec 8_pruebaUICypress.cy.js",
+    "cypress:open": "cypress open"
+  },
+  "devDependencies": {
+    "cypress": "^13.17.0"
+  }
+}

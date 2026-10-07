@@ -1,8 +1,10 @@
-import requests
+import os
+import requests as requests_module
 from datetime import date, timedelta
 
 BASE_URL = "http://localhost:5000"
 HEADERS = {"Content-Type": "application/json"}
+requests = requests_module.Session()
 
 ##python 3_api_client.py 
 
@@ -18,6 +20,19 @@ def mostrar(respuesta):
         print(f"Body:   {respuesta.json()}")
     except ValueError:
         print(f"Body:   {respuesta.text}")
+
+
+correo = os.environ.get("API_EMAIL")
+contrasena = os.environ.get("API_PASSWORD")
+if not correo or not contrasena:
+    raise SystemExit("Configura API_EMAIL y API_PASSWORD con una cuenta de compras o admin.")
+login = requests.post(
+    f"{BASE_URL}/api/sesion",
+    json={"correo": correo, "contrasena": contrasena},
+    headers=HEADERS,
+)
+if login.status_code != 200:
+    raise SystemExit(f"No se pudo iniciar sesión: {login.status_code} {login.text}")
 
 
 # ============================================================
@@ -36,6 +51,9 @@ nuevo = {
     "nombre": "Laptop HP",
     "descripcion": "Laptop 15 pulgadas, 16GB RAM",
     "precio": 1500.50,
+    "precio_por_unidad": 1500.50,
+    "cantidad_stock": 25,
+    "unidad_medida": "unidad",
     "fecha_vencimiento": (date.today() + timedelta(days=365)).isoformat()
 }
 r = requests.post(f"{BASE_URL}/api/productos", json=nuevo, headers=HEADERS)
@@ -66,6 +84,9 @@ invalido = {
     "nombre": "Producto Inválido",
     "descripcion": "Precio negativo",
     "precio": -100,
+    "precio_por_unidad": -100,
+    "cantidad_stock": 10,
+    "unidad_medida": "unidad",
     "fecha_vencimiento": (date.today() + timedelta(days=30)).isoformat()
 }
 r = requests.post(f"{BASE_URL}/api/productos", json=invalido, headers=HEADERS)
@@ -80,6 +101,9 @@ invalido = {
     "nombre": "Producto Vencido",
     "descripcion": "Fecha en el pasado",
     "precio": 100,
+    "precio_por_unidad": 100,
+    "cantidad_stock": 10,
+    "unidad_medida": "unidad",
     "fecha_vencimiento": "2020-01-01"
 }
 r = requests.post(f"{BASE_URL}/api/productos", json=invalido, headers=HEADERS)
@@ -94,6 +118,9 @@ invalido = {
     "nombre": "",
     "descripcion": "Sin nombre",
     "precio": 100,
+    "precio_por_unidad": 100,
+    "cantidad_stock": 10,
+    "unidad_medida": "unidad",
     "fecha_vencimiento": (date.today() + timedelta(days=30)).isoformat()
 }
 r = requests.post(f"{BASE_URL}/api/productos", json=invalido, headers=HEADERS)
@@ -109,6 +136,9 @@ if producto_id:
         "nombre": "Laptop HP Actualizada",
         "descripcion": "Ahora con 32GB RAM",
         "precio": 1800.00,
+        "precio_por_unidad": 1800.00,
+        "cantidad_stock": 25,
+        "unidad_medida": "unidad",
         "fecha_vencimiento": (date.today() + timedelta(days=500)).isoformat()
     }
     r = requests.put(f"{BASE_URL}/api/productos/{producto_id}",

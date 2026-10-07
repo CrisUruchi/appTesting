@@ -2,72 +2,168 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>CRUD Productos</title>
+    <title>Inventario | Acceso</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-        h1 { color: #333; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-        form { display: grid; gap: 10px; margin-bottom: 20px; }
-        input, button { padding: 8px; font-size: 14px; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; }
-        button:hover { background: #0056b3; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: #007bff; color: white; }
-        .error { color: red; margin: 10px 0; }
-        .acciones button { margin-right: 5px; padding: 4px 8px; font-size: 12px; }
-        #form-producto label { font-weight: 600;
-        }
-
-        #form-producto input {
-            padding: 6px;
+        :root { font-family: "Segoe UI", sans-serif; color: #202a31; background: #edf2ef; }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #e4eee9, #f6f5ef 55%, #e7eef0); }
+        button, input, select { font: inherit; }
+        button { border: 0; padding: 10px 14px; color: white; background: #176b58; cursor: pointer; }
+        button:hover { background: #105441; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5d0; background: #fff; }
+        label { font-weight: 600; font-size: .9rem; }
+        .panel { max-width: 1050px; margin: 32px auto; padding: 28px; background: rgba(255,255,255,.94); border: 1px solid #dce5df; }
+        .access { max-width: 440px; margin: 9vh auto; padding: 32px; background: #fff; border-top: 5px solid #176b58; box-shadow: 0 18px 50px #233d3117; }
+        .access h1, h1 { margin-top: 0; }
+        .access form, #form-producto, #form-usuario { display: grid; gap: 10px; }
+        .access form { margin-top: 24px; }
+        .muted { color: #66746d; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; border-bottom: 1px solid #dce5df; padding-bottom: 18px; margin-bottom: 24px; }
+        .topbar h1 { margin: 0; }
+        .profile { display: flex; align-items: center; gap: 14px; }
+        .profile p { margin: 2px 0; }
+        .role { color: #176b58; font-weight: 700; }
+        .content { display: grid; grid-template-columns: minmax(240px, 320px) 1fr; gap: 28px; }
+        .content.single { display: block; }
+        .sales-panel { margin-top: 28px; padding-top: 22px; border-top: 1px solid #dce5df; }
+        .sales-grid { display: grid; grid-template-columns: minmax(220px, 1fr) 150px auto; align-items: end; gap: 12px; }
+        .buyer-search { position: relative; }
+        .buyer-results { display: grid; gap: 4px; max-height: 190px; overflow-y: auto; }
+        .buyer-results button { text-align: left; color: #202a31; background: #eff5f1; }
+        .buyer-results button:hover { background: #dcebe2; }
+        .buyer-selected { margin: 6px 0 0; color: #176b58; font-weight: 600; }
+        .new-buyer { margin-top: 18px; }
+        .new-buyer form { display: grid; grid-template-columns: repeat(3, 1fr) auto; gap: 10px; align-items: end; }
+        .section-title { font-size: 1.05rem; margin: 0 0 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+        th, td { border-bottom: 1px solid #dce5df; padding: 10px 8px; text-align: left; }
+        th { color: #456056; background: #eff5f1; }
+        .acciones { white-space: nowrap; }
+        .acciones button { margin-right: 5px; padding: 7px 10px; }
+        .error { min-height: 1.25rem; color: #a52828; margin: 10px 0; }
+        .success { color: #176b58; }
+        [hidden] { display: none !important; }
+        @media (max-width: 700px) {
+            .panel { margin: 0; padding: 20px 14px; }
+            .topbar, .profile { align-items: flex-start; flex-direction: column; }
+            .content { grid-template-columns: 1fr; }
+            .sales-grid { grid-template-columns: 1fr; }
+            .new-buyer form { grid-template-columns: 1fr; }
+            .table-wrap { overflow-x: auto; }
+            table { min-width: 650px; }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>CRUD de Productos</h1>
-
-    <!--
-    <form id="form-producto">
-        <input type="hidden" id="id" />
-        <input type="text" id="nombre" placeholder="Nombre" required maxlength="100" />
-        <input type="text" id="descripcion" placeholder="Descripción" maxlength="255" />
-        <input type="number" id="precio" placeholder="Precio" step="0.01" min="0.01" required />
-        <input type="date" id="fecha_vencimiento" required />
-        <button type="submit" id="btn-guardar">Crear</button>
-        <button type="button" id="btn-cancelar" style="display:none;">Cancelar</button>
+<section class="access" id="vista-login">
+    <p class="muted">GESTIÓN DE INVENTARIO</p>
+    <h1>Iniciar sesión</h1>
+    <p class="muted">Accede con tu correo institucional o de usuario.</p>
+    <form id="form-login">
+        <label for="correo-login">Correo</label>
+        <input id="correo-login" type="email" autocomplete="username" required>
+        <label for="contrasena-login">Contraseña</label>
+        <input id="contrasena-login" type="password" autocomplete="current-password" required>
+        <button type="submit">Entrar</button>
     </form>
-    -->
-    <form id="form-producto">
-        <input type="hidden" id="id" />
+    <div class="error" id="error-login" role="alert"></div>
+</section>
 
-        <label for="nombre">Nombre</label>
-        <input type="text" id="nombre" placeholder="Nombre" required maxlength="100" />
-
-        <label for="descripcion">Descripción</label>
-        <input type="text" id="descripcion" placeholder="Descripción" maxlength="255" />
-
-        <label for="precio">Precio</label>
-        <input type="number" id="precio" placeholder="Precio" step="0.01" min="0.01" required />
-
-        <label for="fecha_vencimiento">Fecha de vencimiento</label>
-        <input type="date" id="fecha_vencimiento" required />
-
-        <button type="submit" id="btn-guardar">Crear</button>
-        <button type="button" id="btn-cancelar" style="display:none;">Cancelar</button>
-    </form>
-
-    <div class="error" id="error"></div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th><th>Nombre</th><th>Descripción</th><th>Precio</th><th>Vencimiento</th><th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="tbody-productos"></tbody>
-    </table>
+<main class="panel" id="vista-app" hidden>
+    <header class="topbar">
+        <div><p class="muted">SISTEMA DE INVENTARIO</p><h1>Productos</h1></div>
+        <div class="profile">
+            <div><p id="usuario-nombre"></p><p class="role" id="usuario-perfil"></p></div>
+            <button id="btn-salir" type="button">Cerrar sesión</button>
+        </div>
+    </header>
+    <div class="content" id="contenido">
+        <section id="seccion-producto" hidden>
+            <h2 class="section-title">Registrar mercancía</h2>
+            <form id="form-producto">
+                <input type="hidden" id="id">
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" required maxlength="100">
+                <label for="descripcion">Descripción</label>
+                <input type="text" id="descripcion" maxlength="255">
+                <label for="precio">Precio por unidad de medida</label>
+                <input type="number" id="precio" step="0.01" min="0.01" required>
+                <label for="cantidad-stock">Cantidad en stock</label>
+                <input type="number" id="cantidad-stock" step="0.001" min="0" required>
+                <label for="unidad-medida">Unidad de medida</label>
+                <input type="text" id="unidad-medida" maxlength="30" placeholder="unidad, kg, litro..." required>
+                <label for="fecha_vencimiento">Fecha de vencimiento</label>
+                <input type="date" id="fecha_vencimiento" required>
+                <button type="submit" id="btn-guardar">Crear producto</button>
+                <button type="button" id="btn-cancelar" hidden>Cancelar edición</button>
+            </form>
+        </section>
+        <section>
+            <h2 class="section-title">Catálogo de productos</h2>
+            <div class="error" id="error" role="alert"></div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Stock</th><th>Unidad</th><th>Precio / unidad</th><th>Vencimiento</th><th id="th-acciones" hidden>Acciones</th></tr></thead>
+                    <tbody id="tbody-productos"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    <section class="sales-panel" id="seccion-ventas" hidden>
+        <h2 class="section-title">Registrar venta</h2>
+        <form id="form-venta" class="sales-grid">
+            <div class="buyer-search">
+                <label for="buscar-comprador">Comprador registrado</label>
+                <input id="buscar-comprador" type="search" autocomplete="off" placeholder="Buscar por nombre, apellido o teléfono" required>
+                <input id="comprador-id" type="hidden" required>
+                <div id="resultados-compradores" class="buyer-results" role="listbox"></div>
+                <p id="comprador-seleccionado" class="buyer-selected" aria-live="polite"></p>
+            </div>
+            <div>
+                <label for="producto-venta">Producto</label>
+                <select id="producto-venta" required></select>
+            </div>
+            <div>
+                <label for="cantidad-venta">Cantidad</label>
+                <input id="cantidad-venta" type="number" min="0.001" step="0.001" required>
+            </div>
+            <button type="submit">Registrar venta</button>
+        </form>
+        <details class="new-buyer">
+            <summary>Registrar comprador nuevo</summary>
+            <form id="form-comprador">
+                <div><label for="nombre-comprador">Nombre</label><input id="nombre-comprador" maxlength="100" required></div>
+                <div><label for="apellido-comprador">Apellido</label><input id="apellido-comprador" maxlength="100" required></div>
+                <div><label for="telefono-comprador">Teléfono</label><input id="telefono-comprador" maxlength="30" type="tel" required></div>
+                <button type="submit">Guardar comprador</button>
+            </form>
+        </details>
+        <div class="error" id="error-ventas" role="alert"></div>
+        <h2 class="section-title">Ventas recientes</h2>
+        <div class="table-wrap">
+            <table><thead><tr><th>Fecha</th><th>Producto</th><th>Comprador</th><th>Cantidad</th><th>Precio / unidad</th><th>Total</th><th id="th-vendedor" hidden>Vendedor</th></tr></thead><tbody id="tbody-ventas"></tbody></table>
+        </div>
+    </section>
+    <section id="seccion-usuarios" hidden>
+        <h2 class="section-title">Cuentas de usuario</h2>
+        <form id="form-usuario">
+            <label for="nombre-usuario">Nombre completo</label>
+            <input id="nombre-usuario" required maxlength="120">
+            <label for="correo-usuario">Correo</label>
+            <input id="correo-usuario" type="email" required maxlength="254">
+            <label for="contrasena-usuario">Contraseña inicial (mínimo 8 caracteres)</label>
+            <input id="contrasena-usuario" type="password" required minlength="8" autocomplete="new-password">
+            <label for="rol-usuario">Perfil</label>
+            <select id="rol-usuario" required>
+                <option value="admin">Gerente</option>
+                <option value="compras">Encargado de compras</option>
+                <option value="vendedor">Vendedor</option>
+            </select>
+            <button type="submit">Crear cuenta</button>
+        </form>
+        <div class="error" id="error-usuarios" role="alert"></div>
+        <div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Correo</th><th>Perfil</th></tr></thead><tbody id="tbody-usuarios"></tbody></table></div>
+    </section>
 </div>
 
 <script src="/static/app.js"></script>

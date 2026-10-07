@@ -2,7 +2,7 @@ import pytest
 from datetime import date, timedelta
 from validaciones import (
     validar_nombre, validar_descripcion, validar_precio,
-    validar_fecha_vencimiento, validar_producto
+    validar_cantidad, validar_fecha_vencimiento, validar_producto
 )
 
 #ejecutar con
@@ -89,3 +89,26 @@ def test_producto_valido():
     assert resultado["nombre"] == "Laptop"
     assert resultado["precio"] == 1500.0
     assert resultado["fecha_vencimiento"] == futura
+
+
+def test_producto_incluye_stock_unidad_y_precio_por_unidad():
+    futura = date.today() + timedelta(days=30)
+    resultado = validar_producto("Manzana", "", 2.5, futura, 12.75, "kg")
+    assert resultado["cantidad_stock"] == 12.75
+    assert resultado["unidad_medida"] == "kg"
+    assert resultado["precio_por_unidad"] == resultado["precio"] == 2.5
+
+
+def test_cantidad_de_venta_debe_ser_positiva():
+    assert validar_cantidad("0.250") == 0.25
+    with pytest.raises(ValueError):
+        validar_cantidad(0)
+    with pytest.raises(ValueError):
+        validar_cantidad("NaN")
+
+
+def test_stock_no_puede_ser_negativo():
+    with pytest.raises(ValueError):
+        validar_cantidad(-1, permitir_cero=True)
+    with pytest.raises(ValueError):
+        validar_cantidad("NaN", permitir_cero=True)

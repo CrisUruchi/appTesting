@@ -1,11 +1,27 @@
+import os
 import pytest
-import requests
+import requests as requests_module
 from datetime import date, timedelta
 
 ##ejecutar con: python -m pytest 4_test_api_productos.py -v
 
 BASE_URL = "http://localhost:5000"
 HEADERS = {"Content-Type": "application/json"}
+requests = requests_module.Session()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def iniciar_sesion_api():
+    correo = os.environ.get("API_EMAIL")
+    contrasena = os.environ.get("API_PASSWORD")
+    if not correo or not contrasena:
+        pytest.skip("Configura API_EMAIL y API_PASSWORD para ejecutar pruebas de API")
+    respuesta = requests.post(
+        f"{BASE_URL}/api/sesion",
+        json={"correo": correo, "contrasena": contrasena},
+        headers=HEADERS,
+    )
+    assert respuesta.status_code == 200, "Se requiere una cuenta válida, preferentemente admin"
 
 
 def fecha_futura(dias=365):
@@ -21,9 +37,14 @@ def producto_valido(**overrides):
         "nombre": "Laptop HP",
         "descripcion": "Laptop 15 pulgadas",
         "precio": 1500.50,
+        "precio_por_unidad": 1500.50,
+        "cantidad_stock": 25,
+        "unidad_medida": "unidad",
         "fecha_vencimiento": fecha_futura()
     }
     data.update(overrides)
+    if "precio" in overrides and "precio_por_unidad" not in overrides:
+        data["precio_por_unidad"] = overrides["precio"]
     return data
 
 
@@ -60,6 +81,9 @@ def test_crear_producto_valido_devuelve_201():
     body = r.json()
     assert body["id"] is not None
     assert body["nombre"] == payload["nombre"]
+    assert body["cantidad_stock"] == payload["cantidad_stock"]
+    assert body["unidad_medida"] == payload["unidad_medida"]
+    assert body["precio_por_unidad"] == payload["precio_por_unidad"]
     # Cleanup
     requests.delete(f"{BASE_URL}/api/productos/{body['id']}", headers=HEADERS)
 

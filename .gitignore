@@ -1,2 +1,6 @@
 __pycache__/
 .pytest_cache/
+node_modules/
+cypress/videos/
+cypress/screenshots/
+usuarios_prueba.json
